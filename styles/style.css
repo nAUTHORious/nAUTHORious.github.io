@@ -22,6 +22,32 @@
     --max-width: 880px;
     --gap: 1.8rem;
 }
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 2.5rem 1rem;
+    background-color: var(--parchment-dark);
+    background-image:
+        radial-gradient(ellipse at 30% 20%, rgba(200, 149, 26, 0.1) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 80%, rgba(192, 24, 24, 0.07) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8951a' fill-opacity='0.02'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='50' y='50' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E");
+    color: var(--ink);
+    font-family: var(--font-body);
+    overflow-wrap: break-word;
+}
 
 *,
 *::before,
