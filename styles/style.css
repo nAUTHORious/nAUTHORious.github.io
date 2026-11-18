@@ -191,3 +191,10 @@ img {
     letter-spacing: 0.3rem;
     color: var(--gold);
 }
+.section {
+  position: relative;
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, rgba(26, 18, 8, 0.95), rgba(36, 26, 12, 0.85));
+  transition: box-shadow 0.3s;
+}
+.section:hover { box-shadow: 0 0 20px rgba(200, 149, 26, 0.1); }
