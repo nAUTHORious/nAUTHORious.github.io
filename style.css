@@ -1,0 +1,84 @@
+:root {
+    --parchment-dark: #0d0a05;
+    --parchment-mis: #1a1208;
+    --parchment-panel: #2c1f0e;
+    --gold: #c8951a;
+    --gold-bright: #e8b030;
+    --gold-dim: #7a5c18;
+    --cream: #f0dca8;
+    --cream-dim: #c8b07a;
+    --cream-soft: #e8cea0;
+    --ink: #f7ead8;
+    --ink-dim: #9c8060;
+    --red: #c01818;
+    --red-bright: #e82020;
+    --red-soft: #e89090;
+    --border: rgba(200, 149, 26, 0.25);
+
+    --font-display: 'Rye', Georgia, serif;
+    --font-body: 'Libre Baskerville', Georgia, serif;
+    --font-mono: 'Cutive Mono', 'Courier New', monospace;
+
+    --max-width: 880px;
+    --gap: 1.8rem;
+}
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 2.5rem 1rem;
+    background-color: var(--parchment-dark);
+    background-image:
+        radial-gradient(ellipse at 30% 20%, rgba(200, 149, 26, 0.1) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 80%, rgba(192, 24, 24, 0.07) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8951a' fill-opacity='0.02'%3E%3Crect x='0' y='0' width='2' height='2'/%3E%3Crect x='50' y='50' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E");
+    color: var(--ink);
+    font-family: var(--font-body);
+    overflow-wrap: break-word;
+}
+
+.container,
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+}
+
+.container {
+    flex: 1;
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+a {
+    color: var(--gold-bright);
+}
+
+a:hover {
+    color: var(--cream);
+}
+
+:focus-visible {
+    outline: 2px solid var(--gold-bright);
+    outline-offset: 3px;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
