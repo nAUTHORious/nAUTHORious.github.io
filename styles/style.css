@@ -1,0 +1,24 @@
+:root {
+    --parchment-dark: #0d0a05;
+    --parchment-mis: #1a1208;
+    --parchment-panel: #2c1f0e;
+    --gold: #c8951a;
+    --gold-bright: #e8b030;
+    --gold-dim: #7a5c18;
+    --cream: #f0dca8;
+    --cream-dim: #c8b07a;
+    --cream-soft: #e8cea0;
+    --ink: #f7ead8;
+    --ink-dim: #9c8060;
+    --red: #c01818;
+    --red-bright: #e82020;
+    --red-soft: #e89090;
+    --border: rgba(200, 149, 26, 0.25);
+
+    --font-display: 'Rye', Georgia, serif;
+    --font-body: 'Libre Baskerville', Georgia, serif;
+    --font-mono: 'Cutive Mono', 'Courier New', monospace;
+
+    --max-width: 880px;
+    --gap: 1.8rem;
+}
