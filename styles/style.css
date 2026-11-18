@@ -82,3 +82,86 @@ img {
     max-width: 100%;
     height: auto;
 }
+
+.flex-grid {
+    --cols: 2;
+    --gap-x: 0.8rem;
+    --gap-y: 0.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap-y) var(--gap-x);
+}
+
+.flex-grid.cols-3 {
+    --cols: 3;
+}
+
+.flex-grid>* {
+    flex: 0 0 calc((100% - (var(--cols) - 1) * var(--gap-x)) / var(--cols));
+    min-width: 0;
+}
+
+.banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem 1rem 1.8rem;
+    border: 3px solid var(--gold);
+    background: linear-gradient(180deg, var(--parchment-panel), var(--parchment-mid));
+    box-shadow: 0 0 40px rgba(200, 149, 26, 0.15), inset 0 0 30px rgba(0, 0, 0, 0.4);
+}
+
+.banner::before,
+.banner::after {
+    content: '✦ ✦ ✦ ✦ ✦';
+    content: '✦ ✦ ✦ ✦ ✦' / '';
+    font-size: 0.8rem;
+    letter-spacing: 0.5rem;
+    color: var(--gold);
+    opacity: 0.6;
+}
+
+.banner::before {
+    margin-bottom: 0.8rem;
+}
+
+.banner::after {
+    margin-top: 0.8rem;
+}
+
+.banner-tagline {
+    margin-bottom: 0.3rem;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.5rem;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+}
+
+.banner-label {
+    margin-bottom: 0.2rem;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 8vw, 4rem);
+    line-height: 1;
+    letter-spacing: 0.08em;
+    color: var(--red-bright);
+    text-shadow: 2px 2px 0 #600, 0 0 30px rgba(200, 24, 24, 0.4);
+}
+
+.banner-name {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    color: var(--cream);
+    text-shadow: 1px 1px 0 #000, 0 0 25px rgba(200, 149, 26, 0.5);
+}
+
+.banner-subtitle {
+    margin-top: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.3rem;
+    color: var(--gold);
+}
