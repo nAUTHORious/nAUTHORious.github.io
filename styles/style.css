@@ -23,9 +23,58 @@
     --gap: 1.8rem;
 }
 
+
 @media (max-width: 720px) {
     .flex-grid.cols-3 {
         --cols: 2;
+    }
+}
+
+@media (min-width: 1200px) {
+    body {
+        padding-top: 2.5rem;
+    }
+
+    nav.site-nav {
+        position: fixed;
+        top: 2.5rem;
+        left: calc(50% - var(--max-width) / 2 - 1rem - 8.5rem);
+        width: 8.5rem;
+        margin: 0;
+    }
+
+    nav.site-nav ul {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+}
+
+@media (min-width: 1280px) {
+    body {
+        padding-top: 2.5rem;
+    }
+
+    .site-nav {
+        position: fixed;
+        top: 2.5rem;
+        left: calc(50% - var(--max-width) / 2 - 1.5rem - 9.5rem);
+        width: 9.5rem;
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+        border: 0;
+        background: none;
+    }
+
+    .site-nav ul {
+        flex-direction: column;
+        width: auto;
+        margin: 0;
+    }
+
+    .section {
+        scroll-margin-top: 1rem;
     }
 }
 
@@ -81,6 +130,85 @@ body {
     color: var(--ink);
     font-family: var(--font-body);
     overflow-wrap: break-word;
+    padding-top: 0;
+}
+
+nav.site-nav a {
+    background: transparent;
+}
+
+/* ---------- Navigation ---------- */
+/* Default (mobile and tablet): normal bar at the top, transparent */
+body {
+    padding-top: 1rem;
+}
+
+nav.site-nav {
+    position: static;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+nav.site-nav ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    list-style: none;
+}
+
+nav.site-nav a {
+    display: block;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold-dim);
+    background: rgba(10, 7, 2, 0.6);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--cream-dim);
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+nav.site-nav a:hover,
+nav.site-nav a:focus-visible {
+    border-color: var(--gold);
+    border-left-color: var(--gold-bright);
+    background: rgba(200, 149, 26, 0.12);
+    color: var(--cream);
+}
+
+nav.site-nav a[aria-current="page"] {
+    border-color: var(--gold);
+    border-left-color: var(--gold-bright);
+    background: rgba(200, 149, 26, 0.18);
+    color: var(--cream);
+}
+
+/* Desktop: sidebar in the left margin */
+@media (min-width: 1200px) {
+    body {
+        padding-top: 2.5rem;
+    }
+
+    nav.site-nav {
+        position: fixed;
+        top: 2.5rem;
+        left: calc(50% - var(--max-width) / 2 - 1rem - 8.5rem);
+        width: 8.5rem;
+        margin: 0;
+    }
+
+    nav.site-nav ul {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
 }
 
 *,
