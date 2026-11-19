@@ -5,7 +5,7 @@
     const REPO_NAME = 'nAUTHORious.github.io';
     const REPO_BRANCH = 'main';
     const DATA_PATH = 'data/projects.json';
-    const PUBLIC_REPLY_ENDPOINT = ''; 
+    const PUBLIC_REPLY_ENDPOINT = 'https://prj-public-reply.kenkenyoutopia123.workers.dev'; 
 
     const TOKEN_KEY = 'prj-gh-token';
     const NAME_KEY = 'prj-name';
