@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | nAUTHORious</title>
+    <meta name="description" content="Project plans and development logs.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Rye&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cutive+Mono&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+
+<body>
+
+    <nav class="site-nav" aria-label="Main">
+        <ul>
+            <li><a href="index.html">About Me</a></li>
+            <li><a href="projects.html" aria-current="page">Projects</a></li>
+            <li><a href="streams.html">Streams</a></li>
+            <li><a href="socials.html">Socials</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+
+        <header class="Maker">
+            <div class="tagline">|| Field LogS · Roadmaps ||</div>
+            <div class="Pazzaz">Classified</div>
+            <h1 class="author-title">Project Board</h1>
+            <div class="author">/prj/ - Plans in progress</div>
+        </header>
+
+        <main class="stack">
+
+            <div class="board" id="board">
+
+                <div class="board-bar">
+                    <button class="board-btn owner-only" type="button" id="new-toggle" hidden>Start a new
+                        thread</button>
+                    <button class="board-btn owner-only" type="button" id="export" hidden>Export backup</button>
+                    <button class="board-btn owner-only" type="button" id="import-btn" hidden>Import backup</button>
+                    <input type="file" id="import" accept="application/json,.json" hidden>
+
+                    <button class="board-btn" type="button" id="auth-toggle">Owner login</button>
+                    <button class="board-btn owner-only" type="button" id="logout-btn" hidden>Log out</button>
+
+                    <p class="board-note">
+                        <span id="stats">Loading board...</span><br>
+                        <span id="sync-status">Public read-only view.</span>
+                    </p>
+                </div>
+
+                <form class="post-form" id="auth-form" hidden>
+                    <div class="form-row">
+                        <label>GitHub Token (Contents: Read &amp; Write)
+                            <input type="password" id="auth-token" autocomplete="off" placeholder="github_pat_..."
+                                required>
+                        </label>
+                    </div>
+                    <div class="form-row form-actions">
+                        <button class="board-btn" type="submit">Unlock posting</button>
+                        <span class="form-msg" id="auth-msg" role="status"></span>
+                    </div>
+                </form>
+
+                <form class="post-form owner-only" id="new-form" hidden>
+                    <div class="form-row">
+                        <label>Name <input type="text" name="poster" maxlength="40" value="nAUTHORious"></label>
+                        <label>Subject <input type="text" name="subject" maxlength="80"
+                                placeholder="Project name"></label>
+                        <label>Status <select name="status"></select></label>
+                    </div>
+                    <label>Comment
+                        <textarea name="comment" required maxlength="8000" placeholder="What is the plan?"></textarea>
+                    </label>
+                    <p class="form-hint">Start a line with &gt; for greentext. Type &gt;&gt;12 to quote post No.12.</p>
+                    <div class="form-row">
+                        <label>Image (optional) <input type="file" name="file" accept="image/*"></label>
+                    </div>
+                    <div class="form-row form-actions">
+                        <button class="board-btn" type="submit">Post thread</button>
+                        <span class="form-msg" role="status"></span>
+                    </div>
+                </form>
+
+                <div id="threads"></div>
+            </div>
+
+        </main>
+
+        <footer class="footer">// nAUTHORious, © 2026 Heirich Ken Martinez. All Rights Reserved. //</footer>
+    </div>
+
+    <script src="scripts/projects.js" defer></script>
+</body>
+
+</html>
