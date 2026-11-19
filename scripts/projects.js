@@ -1,16 +1,22 @@
-
 (() => {
     'use strict';
 
     const REPO_OWNER = 'nAUTHORious';
-    const REPO_NAME = 'nAUTHORious.github.io'; 
+    const REPO_NAME = 'nAUTHORious.github.io';
     const REPO_BRANCH = 'main';
     const DATA_PATH = 'data/projects.json';
 
     const TOKEN_KEY = 'prj-gh-token';
     const NAME_KEY = 'prj-name';
     const MAX_IMG = 900;
-    const STATUSES = { idea: 'Idea', planning: 'Planning', progress: 'In progress', done: 'Done', dropped: 'Dropped' };
+    const STATUSES = {
+        idea: 'Idea',
+        discussion: 'Discussion',
+        planning: 'Planning',
+        progress: 'In progress',
+        done: 'Done',
+        dropped: 'Dropped'
+    };
     const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     const $ = (sel, root = document) => root.querySelector(sel);
@@ -24,7 +30,7 @@
     const store = {
         get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } },
         set: (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
-        del: (k) => { try { localStorage.removeItem(k); } catch (e) {} }
+        del: (k) => { try { localStorage.removeItem(k); } catch (e) { } }
     };
 
     const getToken = () => store.get(TOKEN_KEY) || '';
@@ -37,15 +43,23 @@
             name: text(p.name, 40) || 'nAUTHORious',
             time: Number(p.time) || Date.now(),
             body: text(p.body, 8000),
-            img: /^data:image\/(jpeg|png|webp|gif);base64,/.test(p.img) ? p.img : null
+            img: /^data:image\/(jpeg|png|webp|gif);base64,/.test(p.img) ? p.img : null,
+            role: p.role === 'public' ? 'public' : 'owner'
         });
-        const threads = (Array.isArray(raw && raw.threads) ? raw.threads : []).map((t) => ({
-            ...post(t),
-            subject: text(t.subject, 80),
-            status: STATUSES[t.status] ? t.status : 'idea',
-            bump: Number(t.bump) || Number(t.time) || 0,
-            replies: (Array.isArray(t.replies) ? t.replies : []).map(post)
-        }));
+        const threads = (Array.isArray(raw && raw.threads) ? raw.threads : []).map((t) => {
+            const allowPublicReply = Boolean(t.allowPublicReply);
+            const rawCredits = Number(t.publicCredits);
+            return {
+                ...post(t),
+                role: 'owner',
+                subject: text(t.subject, 80),
+                status: STATUSES[t.status] ? t.status : 'idea',
+                allowPublicReply,
+                publicCredits: Number.isFinite(rawCredits) && rawCredits >= 0 ? Math.floor(rawCredits) : (allowPublicReply ? 1 : 0),
+                bump: Number(t.bump) || Number(t.time) || 0,
+                replies: (Array.isArray(t.replies) ? t.replies : []).map(post)
+            };
+        });
         const top = Math.max(0, ...threads.flatMap((t) => [t.no, ...t.replies.map((r) => r.no)]));
         return { next: Math.max(Number(raw && raw.next) || 1, top + 1), threads };
     }
@@ -157,8 +171,11 @@
         });
     }
 
-
     const savedName = () => store.get(NAME_KEY) || 'nAUTHORious';
+
+    function canPublicReply(t) {
+        return Boolean(t.allowPublicReply) && Number(t.publicCredits) > 0;
+    }
 
     function updateAuthUI() {
         const owner = isOwner();
@@ -178,7 +195,13 @@
         const owner = isOwner();
 
         const drafts = {};
-        $$('.reply-form').forEach((f) => { drafts[f.dataset.thread] = { open: !f.hidden, text: f.elements.comment.value }; });
+        $$('.reply-form').forEach((f) => {
+            drafts[f.dataset.thread] = {
+                open: !f.hidden,
+                text: f.elements.comment.value,
+                mode: f.dataset.mode || 'owner'
+            };
+        });
 
         const exists = new Set();
         state.threads.forEach((t) => [t, ...t.replies].forEach((p) => exists.add(String(p.no))));
@@ -203,19 +226,30 @@
             ? `<select class="status-select status-${t.status}" data-thread="${t.no}" aria-label="Project status">${statusOptions(t.status)}</select>`
             : `<span class="pill ${t.status === 'dropped' ? 'pill--red' : ''}">[${esc(STATUSES[t.status] || 'Idea')}]</span>`;
 
+        const publicBadge = (t) => {
+            if (!t.allowPublicReply) return '';
+            return t.publicCredits > 0
+                ? `<span class="pill">[1-Time Reply Open: ${t.publicCredits}]</span>`
+                : `<span class="pill pill--red">[1-Time Reply Used — Awaiting Approval]</span>`;
+        };
+
         const postHTML = (p, t, op) => `
             <div class="post ${op ? 'op' : 'reply'}" id="p${p.no}">
                 <div class="post-head">
                     ${op && p.subject ? `<span class="post-subject">${esc(p.subject)}</span>` : ''}
                     <span class="post-name">${esc(p.name)}</span>
+                    ${!op && p.role === 'public' ? `<span class="pill">[Guest]</span>` : ''}
                     <span class="post-time">${stamp(p.time)}</span>
                     ${owner
-                        ? `<a class="post-no" href="#p${p.no}" data-quote="${p.no}" data-thread="${t.no}">No.${p.no}</a>`
-                        : `<a class="post-no" href="#p${p.no}">No.${p.no}</a>`}
+                ? `<a class="post-no" href="#p${p.no}" data-quote="${p.no}" data-thread="${t.no}">No.${p.no}</a>`
+                : `<a class="post-no" href="#p${p.no}">No.${p.no}</a>`}
                     ${op ? statusControl(t) : ''}
+                    ${op ? publicBadge(t) : ''}
                     ${owner ? `
                     <span class="post-tools">
                         ${op ? `<button class="post-link" type="button" data-reply="${t.no}">Reply</button>` : ''}
+                        ${op ? `<button class="post-link" type="button" data-toggle-public="${t.no}">${t.allowPublicReply ? 'Disable 1-Time' : 'Enable 1-Time'}</button>` : ''}
+                        ${op && t.allowPublicReply ? `<button class="post-link" type="button" data-grant-reply="${t.no}">+1 Public Reply</button>` : ''}
                         <button class="post-link" type="button" data-delete="${p.no}" data-thread="${t.no}">Delete</button>
                     </span>` : ''}
                 </div>
@@ -226,68 +260,131 @@
                 ${refs[p.no] ? `<div class="backlinks">Replies: ${refs[p.no].map(link).join(' ')}</div>` : ''}
             </div>`;
 
-        const replyForm = (t) => owner ? `
-            <form class="post-form reply-form" data-thread="${t.no}" hidden>
-                <div class="form-row">
-                    <label>Name <input type="text" name="poster" maxlength="40" value="${esc(savedName())}"></label>
-                    <label>Image (optional) <input type="file" name="file" accept="image/*"></label>
-                </div>
-                <label>Comment <textarea name="comment" required maxlength="8000"></textarea></label>
-                <div class="form-row form-actions">
-                    <button class="board-btn" type="submit">Post reply</button>
-                    <span class="form-msg" role="status"></span>
-                </div>
-            </form>` : '';
+        const replyForm = (t) => {
+            if (owner) {
+                return `
+                <form class="post-form reply-form" data-thread="${t.no}" data-mode="owner" hidden>
+                    <div class="form-row">
+                        <label>Name <input type="text" name="poster" maxlength="40" value="${esc(savedName())}"></label>
+                        <label>Image (optional) <input type="file" name="file" accept="image/*"></label>
+                    </div>
+                    <label>Comment <textarea name="comment" required maxlength="8000"></textarea></label>
+                    <div class="form-row form-actions">
+                        <button class="board-btn" type="submit">Post reply</button>
+                        <span class="form-msg" role="status"></span>
+                    </div>
+                </form>`;
+            }
+            if (canPublicReply(t)) {
+                return `
+                <form class="post-form reply-form" data-thread="${t.no}" data-mode="public" hidden>
+                    <p class="form-hint">One-time reply slot available (${t.publicCredits} remaining). Once posted, further replies require owner approval.</p>
+                    <div class="form-row">
+                        <label>Name <input type="text" name="poster" maxlength="40" placeholder="Anonymous"></label>
+                        <label>Image (optional) <input type="file" name="file" accept="image/*"></label>
+                    </div>
+                    <label>Comment <textarea name="comment" required maxlength="8000"></textarea></label>
+                    <div class="form-row form-actions">
+                        <button class="board-btn" type="submit">Post one-time reply</button>
+                        <span class="form-msg" role="status"></span>
+                    </div>
+                </form>`;
+            }
+            return '';
+        };
 
         const sorted = [...state.threads].sort((a, b) => b.bump - a.bump);
         $('#threads').innerHTML = sorted.length
-            ? sorted.map((t) => `<article class="thread" id="t${t.no}">${postHTML(t, t, true)}<div class="replies">${t.replies.map((r) => postHTML(r, t, false)).join('')}</div>${replyForm(t)}</article>`).join('')
+            ? sorted.map((t) => {
+                const publicBtn = !owner && canPublicReply(t)
+                    ? `<div class="post-head"><span class="post-tools"><button class="post-link" type="button" data-public-reply="${t.no}">One-Time Reply (${t.publicCredits})</button></span></div>`
+                    : '';
+                return `<article class="thread" id="t${t.no}">${postHTML(t, t, true)}${publicBtn}<div class="replies">${t.replies.map((r) => postHTML(r, t, false)).join('')}</div>${replyForm(t)}</article>`;
+            }).join('')
             : '<p class="empty">No project threads posted yet.</p>';
 
-        if (owner) {
-            $$('.reply-form').forEach((f) => {
-                const d = drafts[f.dataset.thread];
-                if (d) { f.hidden = !d.open; f.elements.comment.value = d.text; }
-            });
-        }
+        $$('.reply-form').forEach((f) => {
+            const d = drafts[f.dataset.thread];
+            if (d && d.mode === f.dataset.mode) {
+                f.hidden = !d.open;
+                f.elements.comment.value = d.text;
+            }
+        });
+
         const posts = state.threads.reduce((n, t) => n + 1 + t.replies.length, 0);
         $('#stats').textContent = `${state.threads.length} threads / ${posts} posts`;
     }
-    //Owner/ME
+
     function submitForm(form, threadNo) {
-        if (!isOwner()) return;
+        const mode = form.dataset.mode === 'public' ? 'public' : 'owner';
+        if (mode === 'owner' && !isOwner()) return;
+
         const msg = $('.form-msg', form);
         const body = form.elements.comment.value.trim();
         if (!body) { msg.textContent = 'Write something first.'; return; }
         msg.textContent = '';
-        const name = form.elements.poster.value.trim() || 'nAUTHORious';
-        store.set(NAME_KEY, name);
+
+        const defaultName = mode === 'public' ? 'Anonymous' : savedName();
+        const name = form.elements.poster.value.trim() || defaultName;
+        if (mode === 'owner') store.set(NAME_KEY, name);
+
         const subject = form.elements.subject ? form.elements.subject.value.trim() : '';
         const status = form.elements.status ? form.elements.status.value : 'idea';
+        const allowPublicReply = Boolean(form.elements.allowPublicReply && form.elements.allowPublicReply.checked);
 
         readImage(form.elements.file.files[0]).then((img) => {
-            if (threadNo) { form.elements.comment.value = ''; form.hidden = true; } else { form.reset(); form.hidden = true; }
-            commit(() => {
-                const now = Date.now();
-                const post = { no: state.next++, name, time: now, body, img };
-                if (threadNo) {
-                    const t = state.threads.find((x) => x.no === threadNo);
-                    t.replies.push(post);
-                    t.bump = now;
-                } else {
-                    state.threads.push({ ...post, subject, status: STATUSES[status] ? status : 'idea', bump: now, replies: [] });
+            if (threadNo) { form.elements.comment.value = ''; form.hidden = true; }
+            else { form.reset(); form.hidden = true; }
+
+            if (mode === 'owner') {
+                commit(() => {
+                    const now = Date.now();
+                    const post = { no: state.next++, name, time: now, body, img, role: 'owner' };
+                    if (threadNo) {
+                        const t = state.threads.find((x) => x.no === threadNo);
+                        t.replies.push(post);
+                        t.bump = now;
+                    } else {
+                        state.threads.push({
+                            ...post,
+                            subject,
+                            status: STATUSES[status] ? status : 'idea',
+                            allowPublicReply,
+                            publicCredits: allowPublicReply ? 1 : 0,
+                            bump: now,
+                            replies: []
+                        });
+                    }
+                });
+            } else {
+                const t = state.threads.find((x) => x.no === threadNo);
+                if (!t || !canPublicReply(t)) {
+                    msg.textContent = 'Public reply slot is closed.';
+                    return;
                 }
-            });
+                const now = Date.now();
+                t.replies.push({ no: state.next++, name, time: now, body, img, role: 'public' });
+                t.publicCredits = Math.max(0, Number(t.publicCredits) - 1);
+                t.bump = now;
+                render();
+                msg.textContent = 'Posted locally (requires owner commit to publish to GitHub).';
+            }
         }).catch((err) => { msg.textContent = err.message; });
     }
 
-    function openReply(threadNo, quote) {
-        if (!isOwner()) return;
-        const form = $(`.reply-form[data-thread="${threadNo}"]`);
+    function toggleReply(threadNo, quote, mode = 'owner') {
+        const form = $(`.reply-form[data-thread="${threadNo}"][data-mode="${mode}"]`);
         if (!form) return;
+
+        if (!quote) {
+            form.hidden = !form.hidden;
+            if (!form.hidden) form.elements.comment.focus();
+            return;
+        }
+
         form.hidden = false;
         const box = form.elements.comment;
-        if (quote) box.value += (box.value && !box.value.endsWith('\n') ? '\n' : '') + quote;
+        box.value += (box.value && !box.value.endsWith('\n') ? '\n' : '') + quote;
         box.focus();
     }
 
@@ -313,20 +410,54 @@
     threadsEl.addEventListener('click', (e) => {
         const el = e.target;
         const quote = el.closest('[data-quote]');
-        if (quote && isOwner()) { e.preventDefault(); openReply(quote.dataset.thread, `>>${quote.dataset.quote}\n`); return; }
+        if (quote && isOwner()) { e.preventDefault(); toggleReply(quote.dataset.thread, `>>${quote.dataset.quote}\n`, 'owner'); return; }
+
         const reply = el.closest('[data-reply]');
-        if (reply && isOwner()) { openReply(reply.dataset.reply, ''); return; }
+        if (reply && isOwner()) { toggleReply(reply.dataset.reply, '', 'owner'); return; }
+
+        const pubReply = el.closest('[data-public-reply]');
+        if (pubReply) { toggleReply(pubReply.dataset.publicReply, '', 'public'); return; }
+
+        const togglePub = el.closest('[data-toggle-public]');
+        if (togglePub && isOwner()) {
+            const threadNo = Number(togglePub.dataset.togglePublic);
+            commit(() => {
+                const t = state.threads.find((x) => x.no === threadNo);
+                if (!t) return;
+                t.allowPublicReply = !t.allowPublicReply;
+                if (t.allowPublicReply && t.publicCredits <= 0) t.publicCredits = 1;
+                if (!t.allowPublicReply) t.publicCredits = 0;
+            });
+            return;
+        }
+
+        const grantReply = el.closest('[data-grant-reply]');
+        if (grantReply && isOwner()) {
+            const threadNo = Number(grantReply.dataset.grantReply);
+            commit(() => {
+                const t = state.threads.find((x) => x.no === threadNo);
+                if (!t) return;
+                t.allowPublicReply = true;
+                t.publicCredits = Number(t.publicCredits || 0) + 1;
+            });
+            return;
+        }
+
         const del = el.closest('[data-delete]');
         if (del && isOwner()) { removePost(Number(del.dataset.delete), Number(del.dataset.thread)); return; }
+
         const quoted = el.closest('.quotelink');
         if (quoted) { flash(quoted.dataset.no); return; }
+
         if (el.matches('.post-img')) el.classList.toggle('expanded');
     });
+
     threadsEl.addEventListener('submit', (e) => {
-        if (!e.target.matches('.reply-form') || !isOwner()) return;
+        if (!e.target.matches('.reply-form')) return;
         e.preventDefault();
         submitForm(e.target, Number(e.target.dataset.thread));
     });
+
     threadsEl.addEventListener('change', (e) => {
         if (!e.target.matches('.status-select') || !STATUSES[e.target.value] || !isOwner()) return;
         commit(() => { state.threads.find((x) => x.no === Number(e.target.dataset.thread)).status = e.target.value; });

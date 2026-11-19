@@ -12,7 +12,7 @@
         href="https://fonts.googleapis.com/css2?family=Rye&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cutive+Mono&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css">
-    <link rel="icon" type="image/svg+xml" href="assets/Favicon.png">
+    <link rel="icon" type="image/png" href="assets/Favicon.png">
 </head>
 
 <body>
@@ -81,6 +81,12 @@
                     <p class="form-hint">Start a line with &gt; for greentext. Type &gt;&gt;12 to quote post No.12.</p>
                     <div class="form-row">
                         <label>Image (optional) <input type="file" name="file" accept="image/*"></label>
+                    </div>
+                    <div class="form-row">
+                        <label>
+                            <span><input type="checkbox" name="allowPublicReply"> Allow 1-time public reply (requires
+                                owner approval for another)</span>
+                        </label>
                     </div>
                     <div class="form-row form-actions">
                         <button class="board-btn" type="submit">Post thread</button>
