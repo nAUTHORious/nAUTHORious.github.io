@@ -1,5 +1,5 @@
 {
-  "next": 2,
+  "next": 4,
   "threads": [
     {
       "no": 1,
@@ -11,9 +11,18 @@
       "subject": "Stream",
       "status": "idea",
       "allowPublicReply": true,
-      "publicCredits": 1,
-      "bump": 1795086871358,
-      "replies": []
+      "publicCredits": 0,
+      "bump": 1795095241495,
+      "replies": [
+        {
+          "no": 3,
+          "name": "Anonymous",
+          "time": 1795095241495,
+          "body": "You haven't even finished the first game...",
+          "img": null,
+          "role": "public"
+        }
+      ]
     }
   ]
 }
