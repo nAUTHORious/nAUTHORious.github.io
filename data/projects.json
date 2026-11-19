@@ -10,8 +10,8 @@
       "role": "owner",
       "subject": "Stream",
       "status": "idea",
-      "allowPublicReply": false,
-      "publicCredits": 0,
+      "allowPublicReply": true,
+      "publicCredits": 1,
       "bump": 1795086871358,
       "replies": []
     }
