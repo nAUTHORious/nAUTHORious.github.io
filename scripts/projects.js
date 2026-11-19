@@ -5,10 +5,12 @@
     const REPO_NAME = 'nAUTHORious.github.io';
     const REPO_BRANCH = 'main';
     const DATA_PATH = 'data/projects.json';
+    const PUBLIC_REPLY_ENDPOINT = ''; 
 
     const TOKEN_KEY = 'prj-gh-token';
     const NAME_KEY = 'prj-name';
     const MAX_IMG = 900;
+    const THREADS_PER_PAGE = 10;
     const STATUSES = {
         idea: 'Idea',
         discussion: 'Discussion',
@@ -66,6 +68,7 @@
 
     let state = clean(null);
     let fileSha = null;
+    let currentPage = 1;
 
     const toBase64 = (str) => btoa(unescape(encodeURIComponent(str)));
     const fromBase64 = (b64) => decodeURIComponent(escape(atob(b64.replace(/\s/g, ''))));
@@ -190,6 +193,38 @@
         if (owner) $('#auth-form').hidden = true;
     }
 
+    function renderPagination(totalPages) {
+        const pager = $('#pagination');
+        if (!pager) return;
+        if (totalPages <= 1) {
+            pager.innerHTML = '';
+            return;
+        }
+
+        const pages = [];
+        for (let p = 1; p <= totalPages; p++) {
+            if (p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1) {
+                pages.push(p);
+            } else if (pages[pages.length - 1] !== '...') {
+                pages.push('...');
+            }
+        }
+
+        const prevBtn = currentPage > 1
+            ? `<button class="page-btn" type="button" data-page="${currentPage - 1}" aria-label="Previous page">&laquo;</button>`
+            : '';
+        const nextBtn = currentPage < totalPages
+            ? `<button class="page-btn" type="button" data-page="${currentPage + 1}" aria-label="Next page">&raquo;</button>`
+            : '';
+
+        const numHtml = pages.map((item) => item === '...'
+            ? `<span class="page-ellipsis" aria-hidden="true">...</span>`
+            : `<button class="page-btn${item === currentPage ? ' is-active' : ''}" type="button" data-page="${item}"${item === currentPage ? ' aria-current="page"' : ''}>${item}</button>`
+        ).join('');
+
+        pager.innerHTML = `${prevBtn}${numHtml}${nextBtn}`;
+    }
+
     function render() {
         updateAuthUI();
         const owner = isOwner();
@@ -294,14 +329,21 @@
         };
 
         const sorted = [...state.threads].sort((a, b) => b.bump - a.bump);
-        $('#threads').innerHTML = sorted.length
-            ? sorted.map((t) => {
+        const totalPages = Math.max(1, Math.ceil(sorted.length / THREADS_PER_PAGE));
+        if (currentPage > totalPages) currentPage = totalPages;
+        const startIdx = (currentPage - 1) * THREADS_PER_PAGE;
+        const pageThreads = sorted.slice(startIdx, startIdx + THREADS_PER_PAGE);
+
+        $('#threads').innerHTML = pageThreads.length
+            ? pageThreads.map((t) => {
                 const publicBtn = !owner && canPublicReply(t)
                     ? `<div class="post-head"><span class="post-tools"><button class="post-link" type="button" data-public-reply="${t.no}">One-Time Reply (${t.publicCredits})</button></span></div>`
                     : '';
                 return `<article class="thread" id="t${t.no}">${postHTML(t, t, true)}${publicBtn}<div class="replies">${t.replies.map((r) => postHTML(r, t, false)).join('')}</div>${replyForm(t)}</article>`;
             }).join('')
             : '<p class="empty">No project threads posted yet.</p>';
+
+        renderPagination(totalPages);
 
         $$('.reply-form').forEach((f) => {
             const d = drafts[f.dataset.thread];
@@ -312,7 +354,51 @@
         });
 
         const posts = state.threads.reduce((n, t) => n + 1 + t.replies.length, 0);
-        $('#stats').textContent = `${state.threads.length} threads / ${posts} posts`;
+        $('#stats').textContent = `${state.threads.length} threads / ${posts} posts · Page ${currentPage}/${totalPages}`;
+    }
+
+    async function submitPublicReply(threadNo, name, body, img, msgEl, form) {
+        const t = state.threads.find((x) => x.no === threadNo);
+        if (!t || !canPublicReply(t)) {
+            msgEl.textContent = 'Public reply slot is closed.';
+            return;
+        }
+
+        if (!PUBLIC_REPLY_ENDPOINT) {
+            const now = Date.now();
+            t.replies.push({ no: state.next++, name, time: now, body, img, role: 'public' });
+            t.publicCredits = Math.max(0, Number(t.publicCredits) - 1);
+            t.bump = now;
+            form.elements.comment.value = '';
+            form.hidden = true;
+            render();
+            $('#sync-status').textContent = 'Saved in browser only (set PUBLIC_REPLY_ENDPOINT for automatic GitHub saving).';
+            return;
+        }
+
+        const submitBtn = $('button[type="submit"]', form);
+        if (submitBtn) submitBtn.disabled = true;
+        msgEl.textContent = 'Publishing one-time reply...';
+
+        try {
+            const res = await fetch(PUBLIC_REPLY_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ threadNo, name, body, img })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.ok) {
+                throw new Error(data.error || `Could not save reply (${res.status})`);
+            }
+            form.elements.comment.value = '';
+            form.hidden = true;
+            await loadBoard();
+            $('#sync-status').textContent = `One-time reply #${data.postNo} saved! Live site updates after GitHub Pages finishes deploying.`;
+        } catch (err) {
+            msgEl.textContent = err.message;
+        } finally {
+            if (submitBtn) submitBtn.disabled = false;
+        }
     }
 
     function submitForm(form, threadNo) {
@@ -333,42 +419,33 @@
         const allowPublicReply = Boolean(form.elements.allowPublicReply && form.elements.allowPublicReply.checked);
 
         readImage(form.elements.file.files[0]).then((img) => {
-            if (threadNo) { form.elements.comment.value = ''; form.hidden = true; }
-            else { form.reset(); form.hidden = true; }
-
-            if (mode === 'owner') {
-                commit(() => {
-                    const now = Date.now();
-                    const post = { no: state.next++, name, time: now, body, img, role: 'owner' };
-                    if (threadNo) {
-                        const t = state.threads.find((x) => x.no === threadNo);
-                        t.replies.push(post);
-                        t.bump = now;
-                    } else {
-                        state.threads.push({
-                            ...post,
-                            subject,
-                            status: STATUSES[status] ? status : 'idea',
-                            allowPublicReply,
-                            publicCredits: allowPublicReply ? 1 : 0,
-                            bump: now,
-                            replies: []
-                        });
-                    }
-                });
-            } else {
-                const t = state.threads.find((x) => x.no === threadNo);
-                if (!t || !canPublicReply(t)) {
-                    msg.textContent = 'Public reply slot is closed.';
-                    return;
-                }
-                const now = Date.now();
-                t.replies.push({ no: state.next++, name, time: now, body, img, role: 'public' });
-                t.publicCredits = Math.max(0, Number(t.publicCredits) - 1);
-                t.bump = now;
-                render();
-                msg.textContent = 'Posted locally (requires owner commit to publish to GitHub).';
+            if (mode === 'public') {
+                submitPublicReply(threadNo, name, body, img, msg, form);
+                return;
             }
+
+            if (threadNo) { form.elements.comment.value = ''; form.hidden = true; }
+            else { form.reset(); form.hidden = true; currentPage = 1; }
+
+            commit(() => {
+                const now = Date.now();
+                const post = { no: state.next++, name, time: now, body, img, role: 'owner' };
+                if (threadNo) {
+                    const t = state.threads.find((x) => x.no === threadNo);
+                    t.replies.push(post);
+                    t.bump = now;
+                } else {
+                    state.threads.push({
+                        ...post,
+                        subject,
+                        status: STATUSES[status] ? status : 'idea',
+                        allowPublicReply,
+                        publicCredits: allowPublicReply ? 1 : 0,
+                        bump: now,
+                        replies: []
+                    });
+                }
+            });
         }).catch((err) => { msg.textContent = err.message; });
     }
 
@@ -463,7 +540,18 @@
         commit(() => { state.threads.find((x) => x.no === Number(e.target.dataset.thread)).status = e.target.value; });
     });
 
-    /* ---------- Toolbar & Auth ---------- */
+    const paginationEl = $('#pagination');
+    if (paginationEl) {
+        paginationEl.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-page]');
+            if (!btn) return;
+            currentPage = Number(btn.dataset.page) || 1;
+            render();
+            $('#board').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+  
     const newForm = $('#new-form');
     newForm.elements.status.innerHTML = Object.keys(STATUSES).map((k) => `<option value="${k}">${STATUSES[k]}</option>`).join('');
     newForm.elements.poster.value = newForm.elements.poster.defaultValue = savedName();

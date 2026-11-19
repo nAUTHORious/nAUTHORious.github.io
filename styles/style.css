@@ -1482,3 +1482,52 @@ body:has(.player[open]) {
     font-size: 0.82rem;
     color: var(--ink-dim);
 }
+
+/* Pagination */
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    background: rgba(10, 7, 2, 0.72);
+    font-family: var(--font-mono);
+}
+
+.pagination:empty {
+    display: none;
+}
+
+.page-btn {
+    min-width: 2.2rem;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid rgba(200, 149, 26, 0.35);
+    background: rgba(200, 149, 26, 0.1);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--cream-dim);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.page-btn:hover,
+.page-btn:focus-visible {
+    border-color: var(--gold-bright);
+    background: rgba(200, 149, 26, 0.22);
+    color: var(--cream);
+}
+
+.page-btn.is-active {
+    border-color: var(--gold-bright);
+    background: rgba(200, 149, 26, 0.28);
+    font-weight: 700;
+    color: var(--gold-bright);
+}
+
+.page-ellipsis {
+    padding: 0.2rem 0.35rem;
+    font-size: 0.8rem;
+    color: var(--ink-dim);
+}
