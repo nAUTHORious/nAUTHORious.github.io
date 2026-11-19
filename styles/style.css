@@ -183,6 +183,7 @@ nav.site-nav a[aria-current="page"] {
 html {
     scroll-behavior: smooth;
 }
+
 .container,
 .stack {
     display: flex;
@@ -783,4 +784,41 @@ img {
 .social-link:hover .social-arrow {
     color: var(--gold-bright);
     transform: translate(2px, -2px);
+}
+
+@media (max-width: 720px) {
+    .flex-grid.cols-3 {
+        --cols: 2;
+    }
+}
+
+@media (max-width: 520px) {
+
+    .flex-grid,
+    .flex-grid.cols-3 {
+        --cols: 1;
+    }
+
+    .section-body {
+        padding: 1rem;
+    }
+
+    .author,
+    .tagline {
+        letter-spacing: 0.15rem;
+    }
+}
+
+.social-grid>li {
+    min-width: 0;
+}
+
+.social-handle {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+    .social-handle {
+        letter-spacing: 0.02rem;
+    }
 }
