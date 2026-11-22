@@ -14,7 +14,6 @@
     const CACHE_KEY = 'yt-featured-v1';
 
     const newestFirst = (a, b) => new Date(b.date) - new Date(a.date);
-
     function normalize(v) {
         const t = v.snippet.thumbnails || {};
         const state = v.snippet.liveBroadcastContent;

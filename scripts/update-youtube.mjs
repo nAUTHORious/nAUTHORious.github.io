@@ -5,7 +5,6 @@ const KEY = process.env.YOUTUBE_API_KEY;
 const CHANNEL = process.env.YOUTUBE_CHANNEL_ID;
 const COUNT = 8;
 const MIN_SECONDS = 61;
-
 if (!KEY || !CHANNEL || !CHANNEL.startsWith('UC')) {
     throw new Error('Set YOUTUBE_API_KEY and YOUTUBE_CHANNEL_ID (the channel ID starts with UC).');
 }

@@ -1532,7 +1532,7 @@ body:has(.player[open]) {
     color: var(--ink-dim);
 }
 
-/* Featured stream */
+/*Featured stream*/
 .featured-body {
     display: flex;
     align-items: stretch;
