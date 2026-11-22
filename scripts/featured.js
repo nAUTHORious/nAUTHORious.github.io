@@ -1,10 +1,9 @@
-
 (() => {
     'use strict';
 
-    const YT_API_KEY = process.env.YOUTUBE_API_KEY;
-    const YT_CHANNEL_ID = process.env.YOUTUBE_CHANNEL_ID;
-    const CACHE_SECONDS = 120; // reuse a live check for this long, to save quota
+    const YT_API_KEY = 'AIzaSyDvmpA9XoON2yybb74bbwHEpv9YlRKdOMg';
+    const YT_CHANNEL_ID = 'UCn6IfoX530Cr-JJj9L7qdBg';
+    const CACHE_SECONDS = 120; 
 
     const root = document.getElementById('featured');
     if (!root) return;
