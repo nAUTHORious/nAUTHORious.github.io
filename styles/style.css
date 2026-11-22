@@ -1531,3 +1531,241 @@ body:has(.player[open]) {
     font-size: 0.8rem;
     color: var(--ink-dim);
 }
+
+/* Featured stream */
+.featured-body {
+    display: flex;
+    align-items: stretch;
+    gap: 1rem;
+}
+
+.featured-main {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 0.8rem;
+    min-width: 0;
+}
+
+.featured-player {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 2px solid var(--gold);
+    background: #050301;
+    box-shadow: 0 0 40px rgba(200, 149, 26, 0.15);
+}
+
+.featured.is-live .featured-player,
+.featured.is-live .featured-chat {
+    border-color: var(--red-bright);
+    box-shadow: 0 0 40px rgba(232, 32, 32, 0.2);
+}
+
+.featured-player iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.featured-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.12rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--cream-dim);
+}
+
+.feat-facade {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.feat-facade img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s;
+}
+
+.feat-facade::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(8, 5, 1, 0.6), transparent 55%);
+}
+
+.feat-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    margin: -2.25rem 0 0 -2.25rem;
+    border: 2px solid var(--gold-bright);
+    border-radius: 50%;
+    background: rgba(8, 5, 1, 0.6);
+    font-size: 1.6rem;
+    color: var(--gold-bright);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.feat-facade:hover img,
+.feat-facade:focus-visible img {
+    transform: scale(1.03);
+}
+
+.feat-facade:hover .feat-play,
+.feat-facade:focus-visible .feat-play {
+    transform: scale(1.08);
+    background: rgba(200, 149, 26, 0.3);
+}
+
+.featured-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.9rem;
+}
+
+.featured-info[hidden] {
+    display: none;
+}
+
+.feat-tag {
+    padding: 0.1rem 0.55rem;
+    border: 1px solid rgba(232, 176, 48, 0.5);
+    background: rgba(8, 5, 1, 0.8);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.15rem;
+    text-transform: uppercase;
+    color: var(--gold-bright);
+}
+
+.featured.is-live .feat-tag {
+    border-color: rgba(232, 32, 32, 0.6);
+    color: var(--red-soft);
+}
+
+.featured.is-live .feat-tag::before {
+    content: '';
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.45rem;
+    border-radius: 50%;
+    background: var(--red-bright);
+    animation: feat-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes feat-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.25;
+    }
+}
+
+.featured-name {
+    flex: 1 1 14rem;
+    min-width: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--cream);
+}
+
+.featured-meta {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08rem;
+    color: var(--ink-dim);
+}
+
+/*live chat*/
+.featured-chat {
+    display: flex;
+    flex: 0 0 19rem;
+    flex-direction: column;
+    border: 2px solid var(--gold);
+    background: #050301;
+}
+
+.featured-chat[hidden] {
+    display: none;
+}
+
+.chat-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.chat-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.chat-frame {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.chat-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 900px) {
+    .featured-body {
+        flex-direction: column;
+    }
+
+    .featured-main {
+        flex: none;
+    }
+
+    .featured-chat {
+        flex: none;
+        height: 26rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .featured.is-live .feat-tag::before {
+        animation: none;
+    }
+}

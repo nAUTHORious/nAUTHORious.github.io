@@ -35,6 +35,36 @@
         </header>
 
         <main class="stack">
+            <section class="strip featured" id="featured" aria-labelledby="featured-title">
+                <div class="strip-head">
+                    <h2 class="strip-title" id="featured-title">Latest Stream</h2>
+                    <a class="strip-link" href="https://www.youtube.com/@nAUTHORious/streams" target="_blank"
+                        rel="noopener noreferrer">All streams ↗</a>
+                </div>
+                <div class="featured-body">
+                    <div class="featured-main">
+                        <div class="featured-player" id="featured-player">
+                            <a class="featured-fallback" href="https://www.youtube.com/@nAUTHORious/streams"
+                                target="_blank" rel="noopener noreferrer">Watch my streams on YouTube ↗</a>
+                        </div>
+                        <div class="featured-info" id="featured-info" hidden>
+                            <span class="feat-tag" id="featured-tag">Stream</span>
+                            <h3 class="featured-name" id="featured-name"></h3>
+                            <span class="featured-meta" id="featured-meta"></span>
+                            <a class="strip-link" id="featured-watch" href="#" target="_blank"
+                                rel="noopener noreferrer">Watch on YouTube ↗</a>
+                        </div>
+                    </div>
+                    <aside class="featured-chat" id="featured-chat" aria-label="Live chat" hidden>
+                        <div class="chat-bar">
+                            <span class="chat-label">Live Chat</span>
+                            <a class="strip-link" id="chat-pop" href="#" target="_blank" rel="noopener noreferrer">Pop
+                                out ↗</a>
+                        </div>
+                        <div class="chat-frame" id="chat-frame"></div>
+                    </aside>
+                </div>
+            </section>
             <section class="strip" aria-labelledby="videos-title">
                 <div class="strip-head">
                     <h2 class="strip-title" id="videos-title">Latest Videos</h2>
@@ -199,6 +229,7 @@
         <footer class="footer">// nAUTHORious, © 2026 Heirich Ken Martinez. All Rights Reserved. //</footer>
     </div>
     <script src="scripts/streams.js" defer></script>
+    <script src="scripts/featured.js" defer></script>
     <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </body>
 
